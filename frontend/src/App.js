@@ -37,9 +37,9 @@ function App({ title, description, keywords, author }) {
         }
       }
     } catch (error) {
-      console.error('Error fetching user details:', error);
+      console.error(`Could'nt find the user`, error);
       if (!isFirstLoad) {
-        toast.error('Error fetching user details.');
+        toast.error(`Could'nt find the user!!`);
       }
     }
   };
@@ -65,7 +65,7 @@ function App({ title, description, keywords, author }) {
       } catch (error) {
         console.error('Error fetching cart count:', error);
         if (!isFirstLoad) {
-          toast.error('Error fetching cart count.');
+          toast.error('Cart is empty.');
         }
       }
     } else {

@@ -41,7 +41,7 @@ const WhatsAppChat = () => {
 
         {/* WhatsApp Icon */}
         <a
-  href="https://wa.me/918951936369?text=Hii%20I%20was%20redirected%20from%20the%20website"
+  href="https://wa.me/91?text=Hii%20I%20was%20redirected%20from%20the%20website"
   target="_blank"
   rel="noopener noreferrer"
 >

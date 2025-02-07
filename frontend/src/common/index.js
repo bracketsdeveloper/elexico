@@ -1,4 +1,4 @@
-const backendDomain = 'https://elexico.vercel.app'||'http://localhost:8080' //  
+const backendDomain = 'https://elexico.vercel.app' //  'http://localhost:8080'||
 const SummaryApi = {
     signUp : {
         url : `${backendDomain}/api/signup`,

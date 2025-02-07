@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import SummaryApi from '../common';
 import { toast } from 'react-toastify';
-import addToCart from '../helpers/addToCart';
 import Context from '../context';
 
 const HorizontalCardProduct = ({ category, heading }) => {
@@ -85,7 +84,6 @@ const HorizontalCardProduct = ({ category, heading }) => {
 
   return (
     <div className="my-10 px-6">
-      {/* Heading and Subtitle */}
       <h2 className="text-3xl font-semibold text-center text-white mb-2">
         {heading}
       </h2>
@@ -93,31 +91,31 @@ const HorizontalCardProduct = ({ category, heading }) => {
         Choose from an array of advanced solutions, just like the example shown.
       </p>
 
-      {/* Outer Container (Transparent) */}
       <div className="relative p-4">
-        {/* Left Scroll Button */}
-        <button
-          className="hidden md:flex absolute top-1/2 left-3 transform -translate-y-1/2 z-10
-                     text-gray-300 hover:text-gray-100 bg-transparent hover:bg-white/10
-                     rounded-full p-2 focus:outline-none"
-          onClick={scrollLeft}
-          aria-label="Scroll Left"
-        >
-          <FaAngleLeft size={20} />
-        </button>
+        {data.length > 1 && (
+          <button
+            className="hidden md:flex absolute top-1/2 left-3 transform -translate-y-1/2 z-10
+                       text-gray-300 hover:text-gray-100 bg-transparent hover:bg-white/10
+                       rounded-full p-2 focus:outline-none"
+            onClick={scrollLeft}
+            aria-label="Scroll Left"
+          >
+            <FaAngleLeft size={20} />
+          </button>
+        )}
 
-        {/* Right Scroll Button */}
-        <button
-          className="hidden md:flex absolute top-1/2 right-3 transform -translate-y-1/2 z-10
-                     text-gray-300 hover:text-gray-100 bg-transparent hover:bg-white/10
-                     rounded-full p-2 focus:outline-none"
-          onClick={scrollRight}
-          aria-label="Scroll Right"
-        >
-          <FaAngleRight size={20} />
-        </button>
+        {data.length > 1 && (
+          <button
+            className="hidden md:flex absolute top-1/2 right-3 transform -translate-y-1/2 z-10
+                       text-gray-300 hover:text-gray-100 bg-transparent hover:bg-white/10
+                       rounded-full p-2 focus:outline-none"
+            onClick={scrollRight}
+            aria-label="Scroll Right"
+          >
+            <FaAngleRight size={20} />
+          </button>
+        )}
 
-        {/* Scrollable Content */}
         <div
           className="flex items-stretch gap-6 overflow-x-auto scrollbar-hide"
           ref={scrollElement}
@@ -138,7 +136,6 @@ const HorizontalCardProduct = ({ category, heading }) => {
                              transition-colors p-3"
                 >
                   <Link to={`/product/${product?._id}`} className="flex h-full">
-                    {/* Product Image */}
                     <div className="w-2/3 flex items-center justify-center bg-gray-200 rounded">
                       <img
                         src={product.productImage[0]}
@@ -148,7 +145,6 @@ const HorizontalCardProduct = ({ category, heading }) => {
                       />
                     </div>
 
-                    {/* Product Details */}
                     <div className="w-2/3 pl-3 flex flex-col justify-between">
                       <div>
                         <h3 className="font-bold text-red-500 text-lg line-clamp-1">
@@ -158,7 +154,7 @@ const HorizontalCardProduct = ({ category, heading }) => {
                           {product?.category}
                         </p>
                         <p className="text-base text-gray-400 mt-1">
-                          {displayINRCurrency(product?.selling)}{" "}
+                          {displayINRCurrency(product?.selling)}{' '}
                           <span className="line-through ml-1">
                             {displayINRCurrency(product?.price)}
                           </span>
