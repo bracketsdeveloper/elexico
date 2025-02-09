@@ -18,6 +18,7 @@ const HorizontalCardProduct = ({ category, heading }) => {
   const { fetchUserAddToCart, setCartProductCount } = useContext(Context);
   const user = useSelector((state) => state?.user?.user);
 
+  // Fetch data
   const fetchData = async () => {
     setLoading(true);
     const categoryProduct = await fetchCategoryWiseProduct(category);
@@ -25,6 +26,7 @@ const HorizontalCardProduct = ({ category, heading }) => {
     setLoading(false);
   };
 
+  // Handle "Add to Cart"
   const handleAddToCart = async (e, productId) => {
     e.preventDefault();
 
@@ -51,6 +53,7 @@ const HorizontalCardProduct = ({ category, heading }) => {
         console.error('Error:', error);
       }
     } else {
+      // If user is not logged in, store in localStorage
       const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
       const existingItem = cartItems.find((item) => item.productId === productId);
 
@@ -68,14 +71,17 @@ const HorizontalCardProduct = ({ category, heading }) => {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category]);
 
+  // Scroll to the right in horizontal container
   const scrollRight = () => {
     if (scrollElement.current) {
       scrollElement.current.scrollBy({ left: 300, behavior: 'smooth' });
     }
   };
 
+  // Scroll to the left in horizontal container
   const scrollLeft = () => {
     if (scrollElement.current) {
       scrollElement.current.scrollBy({ left: -300, behavior: 'smooth' });
@@ -84,6 +90,7 @@ const HorizontalCardProduct = ({ category, heading }) => {
 
   return (
     <div className="my-10 px-6">
+      {/* Heading */}
       <h2 className="text-3xl font-semibold text-center text-white mb-2">
         {heading}
       </h2>
@@ -91,6 +98,7 @@ const HorizontalCardProduct = ({ category, heading }) => {
         Choose from an array of advanced solutions, just like the example shown.
       </p>
 
+      {/* Carousel Container */}
       <div className="relative p-4">
         {data.length > 1 && (
           <button
@@ -116,6 +124,7 @@ const HorizontalCardProduct = ({ category, heading }) => {
           </button>
         )}
 
+        {/* Cards */}
         <div
           className="flex items-stretch gap-6 overflow-x-auto scrollbar-hide"
           ref={scrollElement}
@@ -128,49 +137,71 @@ const HorizontalCardProduct = ({ category, heading }) => {
                              animate-pulse rounded-md"
                 ></div>
               ))
-            : data.map((product, index) => (
-                <div
-                  key={index}
-                  className="flex-shrink-0 w-[500px] h-64 bg-transparent 
-                             rounded-md border border-gray-300/50 hover:border-gray-300 
-                             transition-colors p-3"
-                >
-                  <Link to={`/product/${product?._id}`} className="flex h-full">
-                    <div className="w-2/3 flex items-center justify-center bg-gray-200 rounded">
-                      <img
-                        src={product.productImage[0]}
-                        alt={product.productName}
-                        className="object-contain max-h-full hover:scale-105 
-                                   transition-transform"
-                      />
-                    </div>
+            : data.map((product, index) => {
+                const { _id, productImage, productName, category, price, selling } = product;
 
-                    <div className="w-2/3 pl-3 flex flex-col justify-between">
-                      <div>
-                        <h3 className="font-bold text-red-500 text-lg line-clamp-1">
-                          {product?.productName}
-                        </h3>
-                        <p className="text-gray-300 text-base line-clamp-2">
-                          {product?.category}
-                        </p>
-                        <p className="text-base text-gray-400 mt-1">
-                          {displayINRCurrency(product?.selling)}{' '}
-                          <span className="line-through ml-1">
-                            {displayINRCurrency(product?.price)}
-                          </span>
-                        </p>
+                // Calculate discount percentage
+                let discountPercentage = 0;
+                if (price && selling && price > selling) {
+                  discountPercentage = Math.round(
+                    ((price - selling) / price) * 100
+                  );
+                }
+
+                return (
+                  <div
+                    key={index}
+                    className="flex-shrink-0 w-[500px] h-64 bg-transparent 
+                               rounded-md border border-gray-300/50 hover:border-gray-300 
+                               transition-colors p-3"
+                  >
+                    <Link to={`/product/${_id}`} className="flex h-full">
+                      {/* Image Area */}
+                      <div className="w-2/3 flex items-center justify-center bg-gray-200 rounded">
+                        <img
+                          src={productImage[0]}
+                          alt={productName}
+                          className="object-contain max-h-full hover:scale-105 
+                                     transition-transform"
+                        />
                       </div>
-                      <button
-                        className="mt-2 bg-red-600 text-white text-base py-1 px-2 rounded 
-                                   hover:bg-red-700 transition-colors focus:outline-none"
-                        onClick={(e) => handleAddToCart(e, product?._id)}
-                      >
-                        Add to Cart
-                      </button>
-                    </div>
-                  </Link>
-                </div>
-              ))}
+
+                      {/* Info Area */}
+                      <div className="w-2/3 pl-3 flex flex-col justify-between">
+                        <div>
+                          <h3 className="font-bold text-red-500 text-lg line-clamp-1">
+                            {productName}
+                          </h3>
+                          <p className="text-gray-300 text-base line-clamp-2">
+                            {category}
+                          </p>
+
+                          {/* Price and Discount */}
+                          <p className="text-base text-gray-400 mt-1">
+                            {displayINRCurrency(selling)}{' '}
+                            <span className="line-through ml-1">
+                              {displayINRCurrency(price)}
+                            </span>
+                          </p>
+                          {discountPercentage > 0 && (
+                            <p className="text-sm text-green-400 mt-1">
+                              {discountPercentage}% off
+                            </p>
+                          )}
+                        </div>
+
+                        <button
+                          className="mt-2 bg-red-600 text-white text-base py-1 px-2 rounded 
+                                     hover:bg-red-700 transition-colors focus:outline-none"
+                          onClick={(e) => handleAddToCart(e, _id)}
+                        >
+                          Add to Cart
+                        </button>
+                      </div>
+                    </Link>
+                  </div>
+                );
+              })}
         </div>
       </div>
     </div>

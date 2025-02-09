@@ -1,22 +1,47 @@
-// frontend/src/components/Signin.js
-import React, { useState } from 'react';
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link, useNavigate } from 'react-router-dom';
-import SummaryApi from '../common';
-import { toast } from 'react-toastify';
+// frontend/src/components/MultiStepSignup.js
+
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import { useNavigate, Link } from "react-router-dom";
+import SummaryApi from "../common"; // your API endpoints
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 const statesInIndia = [
-  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
-  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
-  "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
-  "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
-  "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
-  "Uttar Pradesh", "Uttarakhand", "West Bengal"
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
 ];
 
-const Signin = () => {
+const MultiStepSignup = () => {
+  const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
-  const [data, setData] = useState({
+
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
@@ -26,36 +51,64 @@ const Signin = () => {
       city: "",
       state: "",
       postalCode: "",
-      country: "India"
-    }
+      country: "India",
+    },
   });
 
   const navigate = useNavigate();
 
-  const handleOnChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name.startsWith('address.')) {
-      const fieldName = name.split('.')[1];
-      setData((prev) => ({
+    if (name.startsWith("address.")) {
+      const key = name.split(".")[1];
+      setFormData((prev) => ({
         ...prev,
         address: {
           ...prev.address,
-          [fieldName]: value
-        }
+          [key]: value,
+        },
       }));
     } else {
-      setData((prev) => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
+  };
+
+  const nextStep = () => {
+    if (step === 1 && !formData.name) {
+      toast.error("Name is required");
+      return;
+    }
+    if (step === 2 && !formData.email) {
+      toast.error("Email is required");
+      return;
+    }
+    if (step === 3 && !formData.password) {
+      toast.error("Password is required");
+      return;
+    }
+    if (step === 4 && formData.password !== formData.confirm_password) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    if (step === 5 && (!formData.address.street || !formData.address.city)) {
+      toast.error("Address street and city are required");
+      return;
+    }
+    setStep((prev) => prev + 1);
+  };
+
+  const prevStep = () => {
+    setStep((prev) => prev - 1);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (data.password !== data.confirm_password) {
+    if (formData.password !== formData.confirm_password) {
       toast.error("Password and Confirm Password didn't match");
       return;
     }
@@ -64,21 +117,21 @@ const Signin = () => {
       const response = await fetch(SummaryApi.signUp.url, {
         method: SummaryApi.signUp.method,
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          address: data.address
-        })
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          address: formData.address,
+        }),
       });
 
       const dataApi = await response.json();
 
       if (response.ok) {
-        toast.success("User created successfully");
-        navigate('/login');
+        toast.success("User created successfully. Please verify your email.");
+        navigate("/login");
       } else {
         toast.error(dataApi.message || "Something went wrong");
       }
@@ -88,215 +141,242 @@ const Signin = () => {
     }
   };
 
-  return (
-    <section
-      id="signup"
-      className="min-h-screen bg-gray-900 flex items-center justify-center"
-    >
-      <div className="container max-w-md mx-auto px-4 py-6">
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          {/* Heading */}
-          <h2 className="text-2xl font-bold text-red-600 text-center mb-6">
-            Sign Up
-          </h2>
+  const togglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
 
-          {/* Form */}
-          <form onSubmit={handleSubmit}>
-            {/* Name */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1 text-gray-700">
-                Name
-              </label>
-              <div className="bg-gray-100 border border-gray-300 rounded p-2">
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Enter your name"
-                  value={data.name}
-                  onChange={handleOnChange}
-                  required
-                  className="w-full bg-transparent outline-none"
-                />
-              </div>
+  // Each step's content
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return (
+          <div>
+            <label className="block text-lg font-semibold mb-2">Name</label>
+            <input
+              type="text"
+              name="name"
+              className="border border-gray-300 rounded w-full p-2 bg-white text-black"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter your full name"
+            />
+          </div>
+        );
+      case 2:
+        return (
+          <div>
+            <label className="block text-lg font-semibold mb-2">Email</label>
+            <input
+              type="email"
+              name="email"
+              className="border border-gray-300 rounded w-full p-2 bg-white text-black"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+            />
+          </div>
+        );
+      case 3:
+        return (
+          <div>
+            <label className="block text-lg font-semibold mb-2">Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                className="border border-gray-300 rounded w-full p-2 pr-10 bg-white text-black"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter password"
+              />
+              <span
+                className="absolute right-2 top-2 cursor-pointer text-gray-700"
+                onClick={togglePassword}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </span>
             </div>
-
-            {/* Email */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1 text-gray-700">
-                Email
-              </label>
-              <div className="bg-gray-100 border border-gray-300 rounded p-2">
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Enter email"
-                  value={data.email}
-                  onChange={handleOnChange}
-                  required
-                  className="w-full bg-transparent outline-none"
-                />
-              </div>
+          </div>
+        );
+      case 4:
+        return (
+          <div>
+            <label className="block text-lg font-semibold mb-2">
+              Confirm Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="confirm_password"
+                className="border border-gray-300 rounded w-full p-2 pr-10 bg-white text-black"
+                value={formData.confirm_password}
+                onChange={handleChange}
+                placeholder="Confirm password"
+              />
+              <span
+                className="absolute right-2 top-2 cursor-pointer text-gray-700"
+                onClick={togglePassword}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </span>
             </div>
+          </div>
+        );
+      case 5:
+        return (
+          <div>
+            <label className="block text-lg font-semibold mb-2">Street</label>
+            <input
+              type="text"
+              name="address.street"
+              className="border border-gray-300 rounded w-full p-2 mb-4 bg-white text-black"
+              value={formData.address.street}
+              onChange={handleChange}
+              placeholder="Street address"
+            />
 
-            {/* Password */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1 text-gray-700">
-                Password
-              </label>
-              <div className="bg-gray-100 border border-gray-300 rounded p-2 flex items-center">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="Enter Password"
-                  value={data.password}
-                  onChange={handleOnChange}
-                  required
-                  className="w-full bg-transparent outline-none"
-                />
-                <div
-                  className="cursor-pointer text-gray-600 ml-2"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                >
-                  {showPassword ? <FaEye /> : <FaEyeSlash />}
-                </div>
-              </div>
-            </div>
-
-            {/* Confirm Password */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1 text-gray-700">
-                Confirm Password
-              </label>
-              <div className="bg-gray-100 border border-gray-300 rounded p-2 flex items-center">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="confirm_password"
-                  placeholder="Confirm Password"
-                  value={data.confirm_password}
-                  onChange={handleOnChange}
-                  required
-                  className="w-full bg-transparent outline-none"
-                />
-                <div
-                  className="cursor-pointer text-gray-600 ml-2"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                >
-                  {showPassword ? <FaEye /> : <FaEyeSlash />}
-                </div>
-              </div>
-            </div>
-
-            {/* Address */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1 text-gray-700">
-                Street
-              </label>
-              <div className="bg-gray-100 border border-gray-300 rounded p-2">
-                <input
-                  type="text"
-                  name="address.street"
-                  placeholder="Enter your full Address"
-                  value={data.address.street}
-                  onChange={handleOnChange}
-                  required
-                  className="w-full bg-transparent outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1 text-gray-700">
-                City
-              </label>
-              <div className="bg-gray-100 border border-gray-300 rounded p-2">
-                <input
-                  type="text"
-                  name="address.city"
-                  placeholder="Enter your city"
-                  value={data.address.city}
-                  onChange={handleOnChange}
-                  required
-                  className="w-full bg-transparent outline-none"
-                />
-              </div>
-            </div>
-
-            {/* State */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1 text-gray-700">
-                State
-              </label>
-              <div className="bg-gray-100 border border-gray-300 rounded p-2">
-                <select
-                  name="address.state"
-                  value={data.address.state}
-                  onChange={handleOnChange}
-                  required
-                  className="w-full bg-transparent outline-none"
-                >
-                  <option value="">Select State</option>
-                  {statesInIndia.map((state, index) => (
-                    <option key={index} value={state}>
-                      {state}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Postal Code */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1 text-gray-700">
-                Postal Code
-              </label>
-              <div className="bg-gray-100 border border-gray-300 rounded p-2">
-                <input
-                  type="text"
-                  name="address.postalCode"
-                  placeholder="Enter postal code"
-                  value={data.address.postalCode}
-                  onChange={handleOnChange}
-                  required
-                  className="w-full bg-transparent outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Country */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1 text-gray-700">
-                Country
-              </label>
-              <div className="bg-gray-100 border border-gray-300 rounded p-2">
-                <input
-                  type="text"
-                  value={data.address.country}
-                  readOnly
-                  className="w-full bg-transparent outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="bg-red-600 hover:bg-red-700 text-white rounded px-6 py-2 w-full max-w-[150px] mt-3 transition-transform transform hover:scale-105 mx-auto block"
+            <label className="block text-lg font-semibold mb-2">City</label>
+            <input
+              type="text"
+              name="address.city"
+              className="border border-gray-300 rounded w-full p-2 bg-white text-black"
+              value={formData.address.city}
+              onChange={handleChange}
+              placeholder="City"
+            />
+          </div>
+        );
+      case 6:
+        return (
+          <div>
+            <label className="block text-lg font-semibold mb-2">State</label>
+            <select
+              name="address.state"
+              className="border border-gray-300 rounded w-full p-2 mb-4 bg-white text-black"
+              value={formData.address.state}
+              onChange={handleChange}
             >
-              Sign Up
-            </button>
-          </form>
+              <option value="">Select State</option>
+              {statesInIndia.map((st) => (
+                <option key={st} value={st}>
+                  {st}
+                </option>
+              ))}
+            </select>
 
-          {/* Login Link */}
-          <p className="mt-4 text-gray-600">
-            Already have an account?{" "}
-            <Link to="/login" className="text-red-600 hover:underline">
-              Login
-            </Link>
-          </p>
-        </div>
+            <label className="block text-lg font-semibold mb-2">
+              Postal Code
+            </label>
+            <input
+              type="text"
+              name="address.postalCode"
+              className="border border-gray-300 rounded w-full p-2 mb-4 bg-white text-black"
+              value={formData.address.postalCode}
+              onChange={handleChange}
+              placeholder="Postal Code"
+            />
+
+            <label className="block text-lg font-semibold mb-2">Country</label>
+            <input
+              type="text"
+              readOnly
+              className="border border-gray-300 rounded w-full p-2 bg-white text-black"
+              value={formData.address.country}
+            />
+          </div>
+        );
+      default:
+        return (
+          <div>
+            <h2 className="text-xl font-semibold text-center">
+              Review Your Details
+            </h2>
+            <ul className="list-disc ml-6 mt-4 text-base">
+              <li>
+                <strong>Name:</strong> {formData.name}
+              </li>
+              <li>
+                <strong>Email:</strong> {formData.email}
+              </li>
+              <li>
+                <strong>Street:</strong> {formData.address.street}
+              </li>
+              <li>
+                <strong>City:</strong> {formData.address.city}
+              </li>
+              <li>
+                <strong>State:</strong> {formData.address.state}
+              </li>
+              <li>
+                <strong>Postal Code:</strong> {formData.address.postalCode}
+              </li>
+              <li>
+                <strong>Country:</strong> {formData.address.country}
+              </li>
+            </ul>
+            <p className="mt-4 text-center">
+              If everything looks good, click <strong>Sign Up</strong>.
+            </p>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-4">
+      <div className="max-w-md w-full bg-black text-white rounded shadow-lg p-6">
+        <h1 className="text-3xl font-bold mb-4 text-center">Sign Up</h1>
+
+        <form onSubmit={handleSubmit}>
+          {/* Step Content */}
+          <div className="mb-6">{renderStep()}</div>
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between">
+            {step > 1 && step < 8 && (
+              <button
+                type="button"
+                onClick={prevStep}
+                className="flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded"
+              >
+                <FaArrowLeft className="mr-2" />
+                Prev
+              </button>
+            )}
+            {step < 7 && (
+              <button
+                type="button"
+                onClick={nextStep}
+                className="ml-auto flex items-center px-4 py-2 bg-white text-black font-semibold rounded hover:bg-gray-200 transition-transform"
+              >
+                Next
+                <FaArrowRight className="ml-2" />
+              </button>
+            )}
+            {step === 7 && (
+              <button
+                type="submit"
+                className="ml-auto px-4 py-2 bg-white text-black font-semibold rounded hover:bg-gray-200 transition-transform"
+              >
+                Sign Up
+              </button>
+            )}
+          </div>
+        </form>
+
+        {/* Already have an account? */}
+        <p className="mt-6 text-center">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-white font-semibold hover:text-gray-200"
+          >
+            Login
+          </Link>
+        </p>
       </div>
-    </section>
+    </div>
   );
 };
 
-export default Signin;
+export default MultiStepSignup;

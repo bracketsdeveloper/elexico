@@ -113,7 +113,7 @@ function App({ title, description, keywords, author }) {
           }}
         />
         <Header />
-        <main className='min-h-[calc(100vh-130px)]'>
+        <main className='main min-h-[calc(100vh-130px)]'>
           <Outlet />
         </main>
         <Footer />

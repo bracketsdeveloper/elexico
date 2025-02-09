@@ -55,28 +55,20 @@ const ProductDetails = () => {
 
   // Add to Cart (No login required)
   const handleAddToCart = async (e, productId) => {
-    // We will simply pass the event and product id to a helper that
-    // handles both cases (logged in or not).
-    // This helper uses localStorage if user is not logged in,
-    // or calls the API if the user is logged in.
     await addToCart(e, productId);
     fetchUserAddToCart();
   };
 
   // Buy (Login Required)
   const handleCheckout = () => {
-    // If user not logged in, show error
     if (!user?._id) {
       toast.error("You must login to buy this product");
       return;
     }
 
-    // If logged in, proceed to WhatsApp checkout
     const message = `${data.productName} - ${displayINRCurrency(data.selling)}`;
     const url = `https://api.whatsapp.com/send?phone=918951936369&text=${encodeURIComponent(
-      `Checkout details:\n${message}\nTotal Price: ${displayINRCurrency(
-        data.selling
-      )}`
+      `Checkout details:\n${message}\nTotal Price: ${displayINRCurrency(data.selling)}`
     )}`;
     window.location.href = url;
   };
@@ -89,6 +81,12 @@ const ProductDetails = () => {
   const handleMouseEnterProduct = (imgUrl) => {
     setActiveImage(imgUrl);
   };
+
+  // Calculate discount percentage if applicable
+  const discountPercentage =
+    data.price && data.selling && data.price > data.selling
+      ? Math.round(((data.price - data.selling) / data.price) * 100)
+      : 0;
 
   return (
     <div className="mx-4 p-4 flex flex-col min-h-screen bg-gray-900 text-white">
@@ -179,6 +177,11 @@ const ProductDetails = () => {
                 {displayINRCurrency(data.price)}
               </p>
             </div>
+            {discountPercentage > 0 && (
+              <p className="text-sm text-green-400">
+                {discountPercentage}% off
+              </p>
+            )}
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">

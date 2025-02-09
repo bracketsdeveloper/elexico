@@ -82,48 +82,61 @@ const CategoryWiseProductDisplay = ({ category, heading }) => {
                 className="w-full h-80 bg-gray-200 rounded-lg shadow-lg animate-pulse"
               ></div>
             ))
-          : data.map((product, index) => (
-              <div
-                key={index}
-                className="w-full h-full bg-gray-900 text-white rounded-lg shadow-lg 
-                           transition-transform transform hover:scale-105"
-              >
-                <Link
-                  to={`/product/${product?._id}`}
-                  onClick={scrollToTop}
-                  className="block"
+          : data.map((product, index) => {
+              // Calculate discount percentage if applicable
+              let discountPercentage = 0;
+              if (product?.price && product?.selling && product.price > product.selling) {
+                discountPercentage = Math.round(((product.price - product.selling) / product.price) * 100);
+              }
+
+              return (
+                <div
+                  key={index}
+                  className="w-full h-full bg-gray-900 text-white rounded-lg shadow-lg 
+                             transition-transform transform hover:scale-105"
                 >
-                  <div className="bg-gray-800 h-64 p-4 flex items-center justify-center rounded-t-lg">
-                    <img
-                      src={product.productImage[0]}
-                      className="object-contain h-full hover:scale-110 transition-transform"
-                      alt={product.name}
-                    />
-                  </div>
-                </Link>
-                <div className="p-3 grid gap-3 bg-gray-800 rounded-b-lg">
-                  <h2 className="font-semibold md:text-lg text-base text-ellipsis line-clamp-1">
-                    {product?.productName}
-                  </h2>
-                  <p className="capitalize text-red-400">{product?.category}</p>
-                  <div className="flex gap-3">
-                    <p className="text-red-400 font-semibold">
-                      {displayINRCurrency(product?.selling)}
-                    </p>
-                    <p className="text-gray-400 line-through">
-                      {displayINRCurrency(product?.price)}
-                    </p>
-                  </div>
-                  <button
-                    className="text-sm bg-red-500 py-1 text-white rounded-full hover:bg-red-600 
-                               transition-colors mt-3"
-                    onClick={(e) => handleAddToCart(e, product?._id)}
+                  <Link
+                    to={`/product/${product?._id}`}
+                    onClick={scrollToTop}
+                    className="block"
                   >
-                    Add to Cart
-                  </button>
+                    <div className="bg-gray-800 h-64 p-4 flex items-center justify-center rounded-t-lg">
+                      <img
+                        src={product.productImage[0]}
+                        className="object-contain h-full hover:scale-110 transition-transform"
+                        alt={product.name}
+                      />
+                    </div>
+                  </Link>
+                  <div className="p-3 grid gap-3 bg-gray-800 rounded-b-lg">
+                    <h2 className="font-semibold md:text-lg text-base text-ellipsis line-clamp-1">
+                      {product?.productName}
+                    </h2>
+                    <p className="capitalize text-red-400">{product?.category}</p>
+                    <div className="flex gap-3">
+                      <p className="text-red-400 font-semibold">
+                        {displayINRCurrency(product?.selling)}
+                      </p>
+                      <p className="text-gray-400 line-through">
+                        {displayINRCurrency(product?.price)}
+                      </p>
+                    </div>
+                    {discountPercentage > 0 && (
+                      <p className="text-sm text-green-400">
+                        {discountPercentage}% off
+                      </p>
+                    )}
+                    <button
+                      className="text-sm bg-red-500 py-1 text-white rounded-full hover:bg-red-600 
+                                 transition-colors mt-3"
+                      onClick={(e) => handleAddToCart(e, product?._id)}
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
       </div>
     </div>
   );

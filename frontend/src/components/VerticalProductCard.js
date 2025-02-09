@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import displayINRCurrency from '../helpers/displayCurrency';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import addToCart from '../helpers/addToCart';
 import Context from '../context';
 import SummaryApi from '../common';
 
@@ -67,40 +66,57 @@ const VerticalProductCard = ({ loading, data = [] }) => {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-          {data.map((product, index) => (
-            <div
-              key={index}
-              className="bg-white border rounded-md shadow hover:shadow-lg transition-shadow p-4 flex flex-col justify-between"
-            >
-              <Link to={`/product/${product?._id}`} className="block mb-3">
-                <div className="flex items-center justify-center bg-gray-100 h-40 rounded">
-                  <img
-                    src={product?.productImage[0]}
-                    alt={product?.productName}
-                    className="object-contain h-full w-full hover:scale-105 transition-transform"
-                  />
-                </div>
-              </Link>
-              <div>
-                <h3 className="text-red-600 font-bold text-sm mb-1 line-clamp-1">
-                  {product?.productName}
-                </h3>
-                <p className="text-gray-700 text-xs mb-1">{product?.category}</p>
-                <p className="text-xs text-gray-600">
-                  {displayINRCurrency(product?.selling)}{' '}
-                  <span className="line-through ml-1">
-                    {displayINRCurrency(product?.price)}
-                  </span>
-                </p>
-              </div>
-              <button
-                className="mt-3 bg-red-600 text-white text-sm py-1 px-2 rounded hover:bg-red-700 transition-colors w-full"
-                onClick={(e) => handleAddToCart(e, product?._id)}
+          {data.map((product, index) => {
+            const { _id, productImage, productName, category, price, selling } = product;
+
+            // Calculate discount percentage if applicable
+            let discountPercentage = 0;
+            if (price && selling && price > selling) {
+              discountPercentage = Math.round(((price - selling) / price) * 100);
+            }
+
+            return (
+              <div
+                key={index}
+                className="bg-white border rounded-md shadow hover:shadow-lg transition-shadow p-4 flex flex-col justify-between"
               >
-                Add to Cart
-              </button>
-            </div>
-          ))}
+                <Link to={`/product/${_id}`} className="block mb-3">
+                  <div className="flex items-center justify-center bg-gray-100 h-40 rounded">
+                    <img
+                      src={productImage[0]}
+                      alt={productName}
+                      className="object-contain h-full w-full hover:scale-105 transition-transform"
+                    />
+                  </div>
+                </Link>
+                <div>
+                  <h3 className="text-red-600 font-bold text-sm mb-1 line-clamp-1">
+                    {productName}
+                  </h3>
+                  <p className="text-gray-700 text-xs mb-1">{category}</p>
+                  <div className="text-xs text-gray-600">
+                    <span>
+                      {displayINRCurrency(selling)}
+                    </span>{' '}
+                    <span className="line-through ml-1">
+                      {displayINRCurrency(price)}
+                    </span>
+                  </div>
+                  {discountPercentage > 0 && (
+                    <p className="text-xs text-green-400 mt-1">
+                      {discountPercentage}% off
+                    </p>
+                  )}
+                </div>
+                <button
+                  className="mt-3 bg-red-600 text-white text-sm py-1 px-2 rounded hover:bg-red-700 transition-colors w-full"
+                  onClick={(e) => handleAddToCart(e, _id)}
+                >
+                  Add to Cart
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

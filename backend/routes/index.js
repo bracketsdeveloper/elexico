@@ -63,6 +63,13 @@ router.get("/search-filter-products", searchAndFilterProductController);
 
 router.post("/get-products-by-ids", getProductsByIds);
 
+const verifyEmailController = require('../controller/user/verifyEmail');
+
+
+
+// Verify email route
+router.get('/verify-email', verifyEmailController);
+
 
 
 module.exports = router 

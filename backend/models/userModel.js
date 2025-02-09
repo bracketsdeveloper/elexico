@@ -1,3 +1,5 @@
+// backend/models/userModel.js
+
 const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
@@ -21,27 +23,34 @@ const userSchema = mongoose.Schema({
     address: {
         street: {
             type: String,
-            required: false, // Make address fields optional
         },
         city: {
             type: String,
-            required: false,
         },
         state: {
             type: String,
-            required: false,
         },
         postalCode: {
             type: String,
-            required: false,
         },
         country: {
             type: String,
-            required: false,
         }
     },
     resetPasswordToken: String,
-    resetPasswordExpiry: Date
+    resetPasswordExpiry: Date,
+
+    // NEW FIELDS FOR EMAIL VERIFICATION
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationToken: {
+        type: String
+    },
+    verificationTokenExpiry: {
+        type: Date
+    },
 }, {
     timestamps: true
 });

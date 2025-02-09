@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import SummaryApi from '../common';
 import { toast } from 'react-toastify';
-import addToCart from '../helpers/addToCart';
 import Context from '../context';
 
 const VerticalCardProduct = ({ category, heading }) => {
@@ -86,53 +85,75 @@ const VerticalCardProduct = ({ category, heading }) => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
-          {data.map((product, index) => (
-            <div
-              key={index}
-              className="bg-transparent border border-gray-300/50 rounded-2xl shadow-sm 
-                         hover:border-gray-300 transition-colors p-3"
-            >
-              {/* Clickable Image for ProductDetails */}
-              <div className="relative h-48 w-full bg-gray-200 flex items-center justify-center rounded cursor-pointer">
-                <Link
-                  to={`/product/${product?._id}`}
-                  className="absolute top-0 left-0 w-full h-full z-10"
-                />
-                <img
-                  src={product?.productImage[0]}
-                  className="object-contain max-h-full w-full hover:scale-105 transition-transform z-0"
-                  alt={product?.productName}
-                />
-              </div>
+          {data.map((product, index) => {
+            const {
+              _id,
+              productImage,
+              productName,
+              category,
+              price,
+              selling,
+            } = product;
+            
+            // Calculate discount percentage if applicable
+            let discountPercentage = 0;
+            if (price && selling && price > selling) {
+              discountPercentage = Math.round(((price - selling) / price) * 100);
+            }
 
-              {/* Product Details + Add to Cart */}
-              <div className="flex flex-col mt-3">
-                <div>
-                  <h2 className="font-semibold text-red-500 text-lg line-clamp-1">
-                    {product?.productName}
-                  </h2>
-                  <p className="text-gray-300 text-base line-clamp-1">
-                    {product?.category}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <p className="text-red-600 font-medium text-base">
-                      {displayINRCurrency(product?.selling)}
-                    </p>
-                    <p className="text-sm text-gray-400 line-through">
-                      {displayINRCurrency(product?.price)}
-                    </p>
-                  </div>
+            return (
+              <div
+                key={index}
+                className="bg-transparent border border-gray-300/50 rounded-2xl shadow-sm 
+                           hover:border-gray-300 transition-colors p-3"
+              >
+                {/* Clickable Image for ProductDetails */}
+                <div className="relative h-48 w-full bg-gray-200 flex items-center justify-center rounded cursor-pointer">
+                  <Link
+                    to={`/product/${_id}`}
+                    className="absolute top-0 left-0 w-full h-full z-10"
+                  />
+                  <img
+                    src={productImage[0]}
+                    className="object-contain max-h-full w-full hover:scale-105 transition-transform z-0"
+                    alt={productName}
+                  />
                 </div>
-                <button
-                  className="mt-2 bg-red-600 text-white text-base py-1 rounded-full 
-                             hover:bg-red-700 transition-colors"
-                  onClick={(e) => handleAddToCart(e, product?._id)}
-                >
-                  Add to Cart
-                </button>
+
+                {/* Product Details + Add to Cart */}
+                <div className="flex flex-col mt-3">
+                  <div>
+                    <h2 className="font-semibold text-red-500 text-lg line-clamp-1">
+                      {productName}
+                    </h2>
+                    <p className="text-gray-300 text-base line-clamp-1">
+                      {category}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-red-600 font-medium text-base">
+                        {displayINRCurrency(selling)}
+                      </p>
+                      <p className="text-sm text-gray-400 line-through">
+                        {displayINRCurrency(price)}
+                      </p>
+                    </div>
+                    {discountPercentage > 0 && (
+                      <p className="text-sm text-green-400 mt-1">
+                        {discountPercentage}% off
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    className="mt-2 bg-red-600 text-white text-base py-1 rounded-full 
+                               hover:bg-red-700 transition-colors"
+                    onClick={(e) => handleAddToCart(e, _id)}
+                  >
+                    Add to Cart
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

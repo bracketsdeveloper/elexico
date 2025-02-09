@@ -17,8 +17,9 @@ const Header = () => {
   const { cartProductCount } = useContext(Context);
   const navigate = useNavigate();
   const searchInput = useLocation();
-  const URLSearch = new URLSearchParams(searchInput?.search?.split("=")[0]);
-  const searchQuery = URLSearch.getAll("q");
+  // Remove auto-search from onChange and only update state
+  const URLSearch = new URLSearchParams(searchInput?.search || '');
+  const searchQuery = URLSearch.get('q') || '';
   const [search, setSearch] = useState(searchQuery);
 
   useEffect(() => {
@@ -48,13 +49,15 @@ const Header = () => {
     }
   };
 
-  const handleSearch = (e) => {
-    const { value } = e.target;
-    setSearch(value);
-    if (value) {
-      navigate(`/search?q=${value}`);
-    } else {
-      navigate("/search");
+  // Updated search handler: only update the state.
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+  };
+
+  // Trigger search only when button is clicked
+  const triggerSearch = () => {
+    if (search) {
+      navigate(`/search?q=${search}`);
     }
   };
 
@@ -71,14 +74,14 @@ const Header = () => {
         {/* Search Bar */}
         <div className="hidden lg:flex items-center w-full justify-center max-w-lg relative">
           <input
-            onChange={handleSearch}
+            onChange={handleSearchChange}
             value={search}
             type="text"
             placeholder="Search products..."
             className="w-full h-10 pl-4 pr-14 rounded-full text-sm border border-gray-300 placeholder-gray-500 focus:outline-none focus:border-black transition-colors"
           />
           <button
-            onClick={() => search && navigate(`/search?q=${search}`)}
+            onClick={triggerSearch}
             className="absolute right-0 w-14 h-10 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
           >
             <FaSearch />
