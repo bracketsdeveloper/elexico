@@ -33,6 +33,15 @@ async function userSignInController(req, res) {
             });
         }
 
+        // Check if user's email is verified
+        if (!user.isVerified) {
+            return res.status(400).json({
+                message: "Please verify your email first",
+                error: true,
+                success: false,
+            });
+        }
+
         // Check password
         const checkPassword = await bcrypt.compare(password, user.password);
         if (!checkPassword) {

@@ -4,7 +4,7 @@ const userModel = require("../../models/userModel");
 async function verifyEmailController(req, res) {
   try {
     const { token } = req.query;  // e.g., /verify-email?token=abc123
-    
+
     if (!token) {
       return res.status(400).json({ success: false, message: "Missing token" });
     }
@@ -24,10 +24,8 @@ async function verifyEmailController(req, res) {
 
     await user.save();
 
-    res.status(200).json({
-      success: true,
-      message: "Email verified successfully"
-    });
+    // Redirect to login page upon successful verification
+    return res.redirect('https://elexico-eura.vercel.app/login');
   } catch (error) {
     console.error("Error in verifyEmailController:", error);
     res.status(500).json({
