@@ -55,7 +55,7 @@ async function userSignUpController(req, res) {
         });
 
         // Verification link (example route: /verify-email?token=...)
-        const verificationLink = `http://localhost:3000/verify-email?token=${verificationToken}`;
+        const verificationLink = `https://elexico-eura.vercel.app/verify-email?token=${verificationToken}`;
 
         const mailOptions = {
             from: process.env.EMAIL_USER,        // your email
